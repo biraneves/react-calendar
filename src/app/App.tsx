@@ -1,13 +1,7 @@
-import {getEventsEndpoint} from "../backend";
+import {CalendarScreen} from "./CalendarScreen";
 
 function App() {
-  getEventsEndpoint().then(events => {
-    for (const event of events) {
-      console.log(event);
-    }
-  });
-
-  return <div>Projeto base</div>;
+  return <CalendarScreen />;
 }
 
 export default App;
