@@ -4,7 +4,7 @@ export interface ICalendar {
     color: string;
 }
 
-export interface IEvents {
+export interface IEvent {
     id: number;
     date: string;
     time?: string;
@@ -19,8 +19,8 @@ export function getCalendarsEndpoint(): Promise<ICalendar[]> {
     });
 }
 
-export function getEventsEndpoint(): Promise<IEvents[]> {
-    return fetch('http://localhost:8080/events')
+export function getEventsEndpoint(from: string, to: string): Promise<IEvent[]> {
+    return fetch(`http://localhost:8080/events?date_gte=${from}&date_lte=${to}&_sort=date,time`)
         .then(resp => {
             return resp.json();
     });

@@ -1,4 +1,6 @@
 import {Avatar, Box, Button, Checkbox, FormControlLabel, Icon, IconButton, makeStyles, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
+import { useEffect, useState } from "react";
+import { getEventsEndpoint, IEvent } from "./backend";
 
 const DAYS_OF_WEEK = [
     'DOM',
@@ -14,21 +16,43 @@ const useStyles = makeStyles({
     table: {
         borderTop: "1px solid rgb(224, 224, 224)",
         minHeight: "100%",
+        tableLayout: "fixed",
         "& td ~ td, & th ~ th": {
             borderLeft: "1px solid rgb(224, 224, 224)",
         },
+        "& td": {
+            verticalAlign: "top",
+            overflow: "hidden",
+            padding: "8px 4px",
+        }
+    },
+    dayOfMonth: {
+        fontWeight: 500,
+        marginBottom: "4px",
+    },
+    event: {
+        display: "flex",
+        alignItems: "center",
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        textAlign: "left",
+        whiteSpace: "nowrap",
+        margin: "4px 0",
     },
 });
 
 interface ICalendarCell {
     date: string;
+    dayOfMonth: number;
+    events: IEvent[];
 }
 
 function getToday(): string {
-    return '2022-08-23';
+    return '2021-06-21';
 }
 
-function generateCalendar(date: string): ICalendarCell[][] {
+function generateCalendar(date: string, allEvents: IEvent[]): ICalendarCell[][] {
     const weeks: ICalendarCell[][] = [];
     const jsDate: Date = new Date(`${date}T12:00:00`);
     const currentMonth: number = jsDate.getMonth();
@@ -47,7 +71,7 @@ function generateCalendar(date: string): ICalendarCell[][] {
             const dateStr: string = currentDay.getDate().toString().padStart(2, '0');
 
             const isoDate: string = `${yearStr}-${monthStr}-${dateStr}`;
-            week.push({date: isoDate});
+            week.push({date: isoDate, dayOfMonth: currentDay.getDate(), events: allEvents.filter(e => e.date === isoDate)});
             currentDay.setDate(currentDay.getDate() + 1);
         }
 
@@ -59,7 +83,15 @@ function generateCalendar(date: string): ICalendarCell[][] {
 
 export function CalendarScreen() {
     const classes = useStyles();
-    const weeks = generateCalendar(getToday());
+    const [events, setEvents] = useState<IEvent[]>([]);
+    const weeks = generateCalendar(getToday(), events);
+    const firstDate: string = weeks[0][0].date;
+    const lastDate: string = weeks[weeks.length - 1][6].date;
+
+
+    useEffect(() => {
+        getEventsEndpoint(firstDate, lastDate).then(setEvents);
+    }, [firstDate, lastDate]);
 
     return (
         <Box display="flex" height="100%" alignItems="stretch">
@@ -106,7 +138,16 @@ export function CalendarScreen() {
                                             week.map(cell => {
                                                 return (
                                                     <TableCell align="center" key={cell.date}>
-                                                        {cell.date}
+                                                        <div className={classes.dayOfMonth}>{cell.dayOfMonth}</div>
+                                                        {
+                                                            cell.events.map(event => (
+                                                                <button className={classes.event}>
+                                                                    {event.time && <Icon fontSize="inherit">watch_later</Icon>}
+                                                                    {event.time && <Box component="span" margin="0 4px">{event.time}</Box>}
+                                                                    <span>{event.desc}</span>
+                                                                </button>
+                                                            ))
+                                                        }
                                                     </TableCell>
                                                 );
                                             })
