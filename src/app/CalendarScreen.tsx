@@ -1,8 +1,9 @@
 import {Avatar, Box, Button, Checkbox, FormControlLabel, Icon, IconButton, makeStyles, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
+import { Link } from "react-router-dom";
 import { getCalendarsEndpoint, getEventsEndpoint, ICalendar, IEvent } from "./backend";
-import { formatMonth, DAYS_OF_WEEK } from "./dateFunctions";
+import { formatMonth, DAYS_OF_WEEK, addMonths } from "./dateFunctions";
 
 const useStyles = makeStyles({
     table: {
@@ -136,10 +137,10 @@ export function CalendarScreen() {
             <Box display="flex" flex="1" flexDirection="column">
                 <Box display="flex" alignItems="center" padding="8px 16px">
                     <Box>
-                        <IconButton aria-label="Mês anterior">
+                        <IconButton aria-label="Mês anterior" component={Link} to={'/calendar/' + addMonths(month, -1)}>
                             <Icon>chevron_left</Icon>
                         </IconButton>
-                        <IconButton aria-label="Próximo mês">
+                        <IconButton aria-label="Próximo mês" component={Link} to={'/calendar/' + addMonths(month, +1)}>
                             <Icon>chevron_right</Icon>
                         </IconButton>
                     </Box>
