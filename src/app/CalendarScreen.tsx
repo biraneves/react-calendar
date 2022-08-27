@@ -1,16 +1,8 @@
 import {Avatar, Box, Button, Checkbox, FormControlLabel, Icon, IconButton, makeStyles, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { getCalendarsEndpoint, getEventsEndpoint, ICalendar, IEvent } from "./backend";
-
-const DAYS_OF_WEEK = [
-    'DOM',
-    'SEG',
-    'TER',
-    'QUA',
-    'QUI',
-    'SEX',
-    'SÁB',
-];
+import { formatMonth, DAYS_OF_WEEK } from "./dateFunctions";
 
 const useStyles = makeStyles({
     table: {
@@ -56,10 +48,6 @@ interface ICalendarCell {
     events: IEventWithCalendar[];
 }
 
-function getToday(): string {
-    return '2021-06-21';
-}
-
 function generateCalendar(date: string, allEvents: IEvent[], allCalendars: ICalendar[], calendarsSelected: boolean[]): ICalendarCell[][] {
     const weeks: ICalendarCell[][] = [];
     const jsDate: Date = new Date(`${date}T12:00:00`);
@@ -101,11 +89,12 @@ function generateCalendar(date: string, allEvents: IEvent[], allCalendars: ICale
 }
 
 export function CalendarScreen() {
+    const { month } = useParams<{ month: string }>();
     const classes = useStyles();
     const [events, setEvents] = useState<IEvent[]>([]);
     const [calendars, setCalendars] = useState<ICalendar[]>([]);
     const [calendarsSelected, setCalendarsSelected] = useState<boolean[]>([]);
-    const weeks = generateCalendar(getToday(), events, calendars, calendarsSelected);
+    const weeks = generateCalendar(month + "-01", events, calendars, calendarsSelected);
     const firstDate: string = weeks[0][0].date;
     const lastDate: string = weeks[weeks.length - 1][6].date;
 
@@ -154,7 +143,7 @@ export function CalendarScreen() {
                             <Icon>chevron_right</Icon>
                         </IconButton>
                     </Box>
-                    <Box flex="1" component="h3" marginLeft="16px">Agosto de 2022</Box>
+                    <Box flex="1" component="h3" marginLeft="16px">{ formatMonth(month) }</Box>
                     <IconButton>
                         <Avatar>
                             <Icon>person</Icon>
