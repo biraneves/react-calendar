@@ -1,5 +1,5 @@
 import {CalendarScreen} from "./CalendarScreen";
-import { BrowserRouter as Router, Switch, Route, Link, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import { getToday } from "./dateFunctions";
 
 function App() {
