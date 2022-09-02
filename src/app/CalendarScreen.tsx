@@ -2,12 +2,12 @@ import { Box, Button } from "@material-ui/core";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { getCalendarsEndpoint, getEventsEndpoint, ICalendar, IEvent } from "./backend";
-import { DAYS_OF_WEEK } from "./dateFunctions";
+import { DAYS_OF_WEEK, getToday } from "./dateFunctions";
 import { CalendarsView } from "./CalendarsView";
 import { CalendarHeader } from "./CalendarHeader";
 import { Calendar } from "./Calendar";
 import { ICalendarCell, IEventWithCalendar } from './Calendar';
-import { EventFormDialog } from "./EventFormDialog";
+import { EventFormDialog, IEditingEvent } from "./EventFormDialog";
 
 function generateCalendar(date: string, allEvents: IEvent[], allCalendars: ICalendar[], calendarsSelected: boolean[]): ICalendarCell[][] {
     const weeks: ICalendarCell[][] = [];
@@ -54,7 +54,7 @@ export function CalendarScreen() {
     const [events, setEvents] = useState<IEvent[]>([]);
     const [calendars, setCalendars] = useState<ICalendar[]>([]);
     const [calendarsSelected, setCalendarsSelected] = useState<boolean[]>([]);
-    const [open, setOpen] = useState<boolean>(false);
+    const [editingEvent, setEditingEvent] = useState<IEditingEvent | null>(null);
     const weeks = generateCalendar(month + "-01", events, calendars, calendarsSelected);
     const firstDate: string = weeks[0][0].date;
     const lastDate: string = weeks[weeks.length - 1][6].date;
@@ -76,17 +76,25 @@ export function CalendarScreen() {
         setCalendarsSelected(newValue);
     }
 
+    function openNewEvent() {
+        setEditingEvent({
+            date: getToday(),
+            desc: '',
+            calendarId: calendars[0].id,
+        });
+    }
+
     return (
         <Box display="flex" height="100%" alignItems="stretch">
             <Box borderRight="1px solid rgb(224, 224, 224)" width="14em" padding="8px 14px">
                 <h2>Agenda React</h2>
-                <Button variant="contained" color="primary" onClick={ () => setOpen(true) }>Novo evento</Button>
+                <Button variant="contained" color="primary" onClick={openNewEvent}>Novo evento</Button>
                 <CalendarsView calendars={calendars} toggleCalendar={toggleCalendar} calendarsSelected={calendarsSelected} />
             </Box>
             <Box display="flex" flex="1" flexDirection="column">
                 <CalendarHeader month={month} />
                 <Calendar weeks={weeks} />
-                <EventFormDialog open={open} onClose={ () => setOpen(false) } />
+                <EventFormDialog event={editingEvent} onClose={ () => setEditingEvent(null) } calendars={calendars} />
             </Box>
         </Box>
     );

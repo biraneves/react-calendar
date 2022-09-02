@@ -1,27 +1,41 @@
-import { useState } from "react";
-import { Button, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, MenuItem, FormHelperText, FormControl, Select, InputLabel } from "@material-ui/core";
+import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, FormControl, Select, InputLabel } from "@material-ui/core";
+import { ICalendar } from "./backend";
+
+export interface IEditingEvent {
+    id?: number;
+    date: string;
+    time?: string;
+    desc: string;
+    calendarId: number;
+}
 
 interface IEventFormDialogProps {
-    open: boolean;
+    event: IEditingEvent | null;
+    calendars: ICalendar[];
     onClose: () => void;
 }
 
 export function EventFormDialog(props: IEventFormDialogProps) {
+    const { event, calendars } = props;
+
     return (
         <div>
-            <Dialog open={props.open} onClose={props.onClose} aria-labelledby="form-dialog-title">
+            <Dialog open={!!event} onClose={props.onClose} aria-labelledby="form-dialog-title">
                 <DialogTitle id="form-dialog-title">Criar evento</DialogTitle>
                 <DialogContent>
-                    <TextField type="date" margin="normal" label="Data" fullWidth />
-                    <TextField autoFocus margin="normal" label="Descrição" fullWidth />
-                    <TextField type="time" margin="normal" label="Hora" fullWidth />
-                    <FormControl margin="normal" fullWidth>
-                        <InputLabel id="select-calendar">Agenda</InputLabel>
-                        <Select labelId="select-calendar">
-                            <MenuItem value={1}>Pessoal</MenuItem>
-                            <MenuItem value={2}>Trabalho</MenuItem>
-                        </Select>
-                    </FormControl>
+                    {event &&
+                        <>
+                            <TextField type="date" margin="normal" label="Data" fullWidth value={event.date} />
+                            <TextField autoFocus margin="normal" label="Descrição" fullWidth value={event.desc} />
+                            <TextField type="time" margin="normal" label="Hora" fullWidth value={event.time} />
+                            <FormControl margin="normal" fullWidth>
+                                <InputLabel id="select-calendar">Agenda</InputLabel>
+                                <Select labelId="select-calendar" value={event.calendarId}>
+                                    {calendars.map(calendar => <MenuItem key={calendar.id} value={calendar.id}>{calendar.name}</MenuItem>)}
+                                </Select>
+                            </FormControl>
+                        </>
+                    }
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={props.onClose}>
