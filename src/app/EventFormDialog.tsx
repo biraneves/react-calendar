@@ -1,4 +1,5 @@
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, FormControl, Select, InputLabel } from "@material-ui/core";
+import { useState } from "react";
 import { ICalendar } from "./backend";
 
 export interface IEditingEvent {
@@ -16,7 +17,9 @@ interface IEventFormDialogProps {
 }
 
 export function EventFormDialog(props: IEventFormDialogProps) {
-    const { event, calendars } = props;
+    const { calendars } = props;
+
+    const [event, setEvent] = useState<IEditingEvent | null>(props.event);
 
     return (
         <div>
