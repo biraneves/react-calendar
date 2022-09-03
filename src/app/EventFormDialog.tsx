@@ -10,7 +10,7 @@ import {
     Select,
     InputLabel,
 } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createEventEndpoint, ICalendar, IEditingEvent } from './backend';
 
 interface IEventFormDialogProps {
@@ -20,18 +20,49 @@ interface IEventFormDialogProps {
     onSave: () => void;
 }
 
+interface IValidationErrors {
+    [field: string]: string;
+}
+
 export function EventFormDialog(props: IEventFormDialogProps) {
     const { calendars } = props;
 
     const [event, setEvent] = useState<IEditingEvent | null>(props.event);
+    const [errors, setErrors] = useState<IValidationErrors>({});
+
+    const inputDate = useRef<HTMLInputElement | null>();
+    const inputDesc = useRef<HTMLInputElement | null>();
 
     useEffect(() => {
         setEvent(props.event);
+        setErrors({});
     }, [props.event]);
+
+    function validate(): boolean {
+        if (event) {
+            const currentErrors: IValidationErrors = {};
+            if (!event.date) {
+                currentErrors['date'] = 'A data deve ser preenchida';
+                inputDate.current?.focus();
+            }
+            if (!event.desc) {
+                currentErrors['desc'] = 'A descrição deve ser preenchida';
+                inputDesc.current?.focus();
+            }
+            setErrors(currentErrors);
+            return Object.keys(currentErrors).length === 0;
+        }
+
+        return false;
+    }
 
     function save(evt: React.FormEvent) {
         evt.preventDefault();
-        if (event) createEventEndpoint(event).then(props.onSave);
+        if (event) {
+            if (validate()) {
+                createEventEndpoint(event).then(props.onSave);
+            }
+        }
     }
 
     return (
@@ -49,6 +80,7 @@ export function EventFormDialog(props: IEventFormDialogProps) {
                         {event && (
                             <>
                                 <TextField
+                                    inputRef={inputDate}
                                     type="date"
                                     margin="normal"
                                     label="Data"
@@ -60,8 +92,11 @@ export function EventFormDialog(props: IEventFormDialogProps) {
                                             date: evt.target.value,
                                         })
                                     }
+                                    error={!!errors.date}
+                                    helperText={errors.date}
                                 />
                                 <TextField
+                                    inputRef={inputDesc}
                                     autoFocus
                                     margin="normal"
                                     label="Descrição"
@@ -73,6 +108,8 @@ export function EventFormDialog(props: IEventFormDialogProps) {
                                             desc: evt.target.value,
                                         })
                                     }
+                                    error={!!errors.desc}
+                                    helperText={errors.desc}
                                 />
                                 <TextField
                                     type="time"
