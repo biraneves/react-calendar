@@ -1,20 +1,40 @@
-import {CalendarScreen} from "./CalendarScreen";
-import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
-import { getToday } from "./dateFunctions";
+import { CalendarScreen } from './CalendarScreen';
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+    Redirect,
+} from 'react-router-dom';
+import { getToday } from './dateFunctions';
+import { useEffect, useState } from 'react';
+import { getUserEndpoint } from './backend';
 
 function App() {
     const month = getToday().substring(0, 7);
+    const [hasSession, setHasSession] = useState(false);
 
-    return (
-        <Router>
-            <Switch>
-                <Route path="/calendar/:month">
-                    <CalendarScreen />;
-                </Route>
-                <Redirect to={{ pathname: "/calendar/" + month }} />
-            </Switch>
-        </Router>
-    );
+    useEffect(() => {
+        getUserEndpoint().then(
+            () => setHasSession(true),
+            () => setHasSession(false),
+        );
+    }, []);
+
+    if (hasSession) {
+        return (
+            <Router>
+                <Switch>
+                    <Route path="/calendar/:month">
+                        <CalendarScreen />;
+                    </Route>
+                    <Redirect to={{ pathname: '/calendar/' + month }} />
+                </Switch>
+            </Router>
+        );
+    } else {
+        return <div>Login</div>;
+    }
+
 }
 
 export default App;
