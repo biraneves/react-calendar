@@ -68,7 +68,7 @@ export function CalendarScreen() {
             setCalendars(calendars);
             setEvents(events);
         });
-    }, [firstDate, lastDate]);
+    }, [firstDate, lastDate]);    
 
     function toggleCalendar(i: number) {
         const newValue: boolean[] = [...calendarsSelected];
