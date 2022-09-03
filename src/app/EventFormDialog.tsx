@@ -9,9 +9,10 @@ import {
     FormControl,
     Select,
     InputLabel,
+    Box,
 } from '@material-ui/core';
 import React, { useEffect, useRef, useState } from 'react';
-import { createEventEndpoint, ICalendar, IEditingEvent } from './backend';
+import { createEventEndpoint, deleteEventEndpoint, ICalendar, IEditingEvent, updateEventEndpoint } from './backend';
 
 interface IEventFormDialogProps {
     event: IEditingEvent | null;
@@ -38,6 +39,8 @@ export function EventFormDialog(props: IEventFormDialogProps) {
         setErrors({});
     }, [props.event]);
 
+    const isNew = !event?.id;
+
     function validate(): boolean {
         if (event) {
             const currentErrors: IValidationErrors = {};
@@ -60,8 +63,18 @@ export function EventFormDialog(props: IEventFormDialogProps) {
         evt.preventDefault();
         if (event) {
             if (validate()) {
-                createEventEndpoint(event).then(props.onSave);
+                if (isNew) {
+                    createEventEndpoint(event).then(props.onSave);
+                } else {
+                    updateEventEndpoint(event).then(props.onSave);
+                }
             }
+        }
+    }
+
+    function deleteEvent() {
+        if (event) {
+            deleteEventEndpoint(event.id!).then(props.onSave);
         }
     }
 
@@ -74,7 +87,7 @@ export function EventFormDialog(props: IEventFormDialogProps) {
             >
                 <form onSubmit={save}>
                     <DialogTitle id="form-dialog-title">
-                        Criar evento
+                        {isNew ? 'Criar evento' : 'Editar evento'}
                     </DialogTitle>
                     <DialogContent>
                         {event && (
@@ -153,6 +166,12 @@ export function EventFormDialog(props: IEventFormDialogProps) {
                         )}
                     </DialogContent>
                     <DialogActions>
+                        {!isNew && (
+                            <Button type='button' onClick={deleteEvent}>
+                                Excluir
+                            </Button>
+                        )}
+                        <Box flex='1'></Box>
                         <Button type="button" onClick={props.onCancel}>
                             Cancelar
                         </Button>
