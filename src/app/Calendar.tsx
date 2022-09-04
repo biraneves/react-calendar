@@ -11,6 +11,7 @@ import {
 } from '@material-ui/core';
 import React from 'react';
 import { ICalendar, IEvent } from './backend';
+import { ICalendarScreenAction } from './calendarScreenReducer';
 import { DAYS_OF_WEEK, getToday } from './dateFunctions';
 
 const useStyles = makeStyles({
@@ -67,8 +68,7 @@ export interface ICalendarCell {
 
 interface ICalendarProps {
     weeks: ICalendarCell[][];
-    onClickDay: (date: string) => void;
-    onClickEvent: (event: IEvent) => void;
+    dispatch: React.Dispatch<ICalendarScreenAction>;
 }
 
 export const Calendar = React.memo(function (props: ICalendarProps) {
@@ -77,7 +77,7 @@ export const Calendar = React.memo(function (props: ICalendarProps) {
 
     function handleClick(evt: React.MouseEvent, date: string) {
         if (evt.target === evt.currentTarget) {
-            props.onClickDay(date);
+            props.dispatch({ type: 'new', payload: date });
         }
     }
 
@@ -127,9 +127,10 @@ export const Calendar = React.memo(function (props: ICalendarProps) {
                                                             classes.event
                                                         }
                                                         onClick={() =>
-                                                            props.onClickEvent(
-                                                                event,
-                                                            )
+                                                            props.dispatch({
+                                                                type: 'edit',
+                                                                payload: event,
+                                                            })
                                                         }
                                                     >
                                                         {event.time && (
