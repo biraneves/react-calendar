@@ -4,10 +4,10 @@ import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { signOutEndpoint } from './backend';
 import { makeStyles } from '@material-ui/core/styles';
-import { authContext } from './authContext';
+import { useAuthContext } from './authContext';
 
 const useStyles = makeStyles({
     userDetails: {
@@ -19,12 +19,12 @@ const useStyles = makeStyles({
         marginBottom: '8px',
         '& > *': {
             marginBottom: '8px',
-        }
-    }
+        },
+    },
 });
 
 export function UserMenu() {
-    const {user, onSignOut} = useContext(authContext);
+    const { user, onSignOut } = useAuthContext();
 
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -35,12 +35,12 @@ export function UserMenu() {
 
     const handleClose = () => {
         setAnchorEl(null);
-    }
+    };
 
     const signOut = () => {
         signOutEndpoint();
         onSignOut();
-    }
+    };
 
     return (
         <>

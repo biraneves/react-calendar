@@ -15,6 +15,53 @@ import { ICalendarCell, IEventWithCalendar } from './Calendar';
 import { EventFormDialog } from './EventFormDialog';
 import { reducer } from './calendarScreenReducer';
 
+function useCalendarScreenState(month: string) {
+    const [state, dispatch] = useReducer(reducer, {
+        calendars: [],
+        calendarsSelected: [],
+        events: [],
+        editingEvent: null,
+    });
+
+    const { events, calendars, calendarsSelected, editingEvent } = state;
+
+    const weeks = useMemo(() => {
+        return generateCalendar(
+            month + '-01',
+            events,
+            calendars,
+            calendarsSelected,
+        );
+    }, [month, events, calendars, calendarsSelected]);
+
+    const firstDate: string = weeks[0][0].date;
+    const lastDate: string = weeks[weeks.length - 1][6].date;
+
+    useEffect(() => {
+        Promise.all([
+            getCalendarsEndpoint(),
+            getEventsEndpoint(firstDate, lastDate),
+        ]).then(([calendars, events]) => {
+            dispatch({ type: 'load', payload: { events, calendars } });
+        });
+    }, [firstDate, lastDate]);
+
+    function refreshEvents() {
+        getEventsEndpoint(firstDate, lastDate).then(() => {
+            dispatch({ type: 'load', payload: { events } });
+        });
+    }
+
+    return {
+        weeks,
+        calendars,
+        dispatch,
+        refreshEvents,
+        calendarsSelected,
+        editingEvent,
+    };
+}
+
 function generateCalendar(
     date: string,
     allEvents: IEvent[],
@@ -76,45 +123,18 @@ function generateCalendar(
 
 export function CalendarScreen() {
     const { month } = useParams<{ month: string }>();
-
-    const [state, dispatch] = useReducer(reducer, {
-        calendars: [],
-        calendarsSelected: [],
-        events: [],
-        editingEvent: null,
-    });
-
-    const { events, calendars, calendarsSelected, editingEvent } = state;
-
-    const weeks = useMemo(() => {
-        return generateCalendar(
-            month + '-01',
-            events,
-            calendars,
-            calendarsSelected,
-        );
-    }, [month, events, calendars, calendarsSelected]);
-    const firstDate: string = weeks[0][0].date;
-    const lastDate: string = weeks[weeks.length - 1][6].date;
-
-    useEffect(() => {
-        Promise.all([
-            getCalendarsEndpoint(),
-            getEventsEndpoint(firstDate, lastDate),
-        ]).then(([calendars, events]) => {
-            dispatch({ type: 'load', payload: { events, calendars } });
-        });
-    }, [firstDate, lastDate]);
-
-    function refreshEvents() {
-        getEventsEndpoint(firstDate, lastDate).then(() => {
-            dispatch({ type: 'load', payload: { events } });
-        });
-    }
+    const {
+        weeks,
+        calendars,
+        dispatch,
+        refreshEvents,
+        calendarsSelected,
+        editingEvent,
+    } = useCalendarScreenState(month);
 
     const closeDialog = useCallback(() => {
         dispatch({ type: 'closeDialog' });
-    }, []);
+    }, [dispatch]);
 
     return (
         <Box display="flex" height="100%" alignItems="stretch">
