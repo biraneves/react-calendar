@@ -9,6 +9,7 @@ import {
     TableHead,
     TableRow,
 } from '@material-ui/core';
+import React from 'react';
 import { ICalendar, IEvent } from './backend';
 import { DAYS_OF_WEEK, getToday } from './dateFunctions';
 
@@ -33,10 +34,10 @@ const useStyles = makeStyles({
         lineHeight: '24px',
         marginBottom: '4px',
         borderRadius: '50%',
-        "&.today": {
+        '&.today': {
             backgroundColor: '#3f51b5',
             color: 'white',
-        }
+        },
     },
     event: {
         display: 'flex',
@@ -70,7 +71,7 @@ interface ICalendarProps {
     onClickEvent: (event: IEvent) => void;
 }
 
-export function Calendar(props: ICalendarProps) {
+export const Calendar = React.memo(function (props: ICalendarProps) {
     const { weeks } = props;
     const classes = useStyles();
 
@@ -101,9 +102,18 @@ export function Calendar(props: ICalendarProps) {
                                         <TableCell
                                             align="center"
                                             key={cell.date}
-                                            onClick={(me) => handleClick(me, cell.date)}
+                                            onClick={(me) =>
+                                                handleClick(me, cell.date)
+                                            }
                                         >
-                                            <div className={classes.dayOfMonth + (cell.date === getToday() ? " today" : "")}>
+                                            <div
+                                                className={
+                                                    classes.dayOfMonth +
+                                                    (cell.date === getToday()
+                                                        ? ' today'
+                                                        : '')
+                                                }
+                                            >
                                                 {cell.dayOfMonth}
                                             </div>
                                             {cell.events.map((event) => {
@@ -116,7 +126,11 @@ export function Calendar(props: ICalendarProps) {
                                                         className={
                                                             classes.event
                                                         }
-                                                        onClick={() => props.onClickEvent(event)}
+                                                        onClick={() =>
+                                                            props.onClickEvent(
+                                                                event,
+                                                            )
+                                                        }
                                                     >
                                                         {event.time && (
                                                             <>
@@ -166,4 +180,4 @@ export function Calendar(props: ICalendarProps) {
             </Table>
         </TableContainer>
     );
-}
+});

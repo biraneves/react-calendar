@@ -1,5 +1,5 @@
 import { Box, Button } from '@material-ui/core';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import {
     getCalendarsEndpoint,
@@ -108,19 +108,25 @@ export function CalendarScreen() {
         getEventsEndpoint(firstDate, lastDate).then(setEvents);
     }
 
-    function toggleCalendar(i: number) {
-        const newValue: boolean[] = [...calendarsSelected];
-        newValue[i] = !newValue[i];
-        setCalendarsSelected(newValue);
-    }
+    const toggleCalendar = useCallback(
+        (i: number) => {
+            const newValue: boolean[] = [...calendarsSelected];
+            newValue[i] = !newValue[i];
+            setCalendarsSelected(newValue);
+        },
+        [calendarsSelected],
+    );
 
-    function openNewEvent(date: string) {
-        setEditingEvent({
-            date,
-            desc: '',
-            calendarId: calendars[0].id,
-        });
-    }
+    const openNewEvent = useCallback(
+        (date: string) => {
+            setEditingEvent({
+                date,
+                desc: '',
+                calendarId: calendars[0].id,
+            });
+        },
+        [calendars],
+    );
 
     return (
         <Box display="flex" height="100%" alignItems="stretch">
@@ -145,7 +151,11 @@ export function CalendarScreen() {
             </Box>
             <Box display="flex" flex="1" flexDirection="column">
                 <CalendarHeader month={month} />
-                <Calendar weeks={weeks} onClickDay={openNewEvent} onClickEvent={setEditingEvent} />
+                <Calendar
+                    weeks={weeks}
+                    onClickDay={openNewEvent}
+                    onClickEvent={setEditingEvent}
+                />
                 <EventFormDialog
                     event={editingEvent}
                     onCancel={() => setEditingEvent(null)}
