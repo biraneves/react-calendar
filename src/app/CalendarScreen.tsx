@@ -6,7 +6,6 @@ import {
     getEventsEndpoint,
     ICalendar,
     IEvent,
-    IUser,
 } from './backend';
 import { DAYS_OF_WEEK, getToday } from './dateFunctions';
 import { CalendarsView } from './CalendarsView';
@@ -75,12 +74,7 @@ function generateCalendar(
     return weeks;
 }
 
-interface ICalendarScreenProps {
-    onSignOut: () => void;
-    user: IUser;
-}
-
-export function CalendarScreen(props: ICalendarScreenProps) {
+export function CalendarScreen() {
     const { month } = useParams<{ month: string }>();
     const [events, setEvents] = useState<IEvent[]>([]);
     const [calendars, setCalendars] = useState<ICalendar[]>([]);
@@ -148,7 +142,7 @@ export function CalendarScreen(props: ICalendarScreenProps) {
                 />
             </Box>
             <Box display="flex" flex="1" flexDirection="column">
-                <CalendarHeader month={month} user={props.user} onSignOut={props.onSignOut} />
+                <CalendarHeader month={month} />
                 <Calendar weeks={weeks} onClickDay={openNewEvent} onClickEvent={setEditingEvent} />
                 <EventFormDialog
                     event={editingEvent}

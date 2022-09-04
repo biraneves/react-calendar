@@ -9,6 +9,7 @@ import { getToday } from './dateFunctions';
 import { useEffect, useState } from 'react';
 import { getUserEndpoint, IUser } from './backend';
 import { LoginScreen } from './LoginScreen';
+import { authContext } from './authContext';
 
 function App() {
     const month = getToday().substring(0, 7);
@@ -16,24 +17,26 @@ function App() {
 
     useEffect(() => {
         getUserEndpoint().then(setUser,
-            signOut,
+            onSignOut,
         );
     }, []);
 
-    function signOut() {
+    function onSignOut() {
         setUser(null);
     }
 
     if (user) {
         return (
-            <Router>
-                <Switch>
-                    <Route path="/calendar/:month">
-                        <CalendarScreen user={user} onSignOut={signOut} />;
-                    </Route>
-                    <Redirect to={{ pathname: '/calendar/' + month }} />
-                </Switch>
-            </Router>
+            <authContext.Provider value={{user, onSignOut}}>
+                    <Router>
+                        <Switch>
+                            <Route path="/calendar/:month">
+                                <CalendarScreen />;
+                            </Route>
+                            <Redirect to={{ pathname: '/calendar/' + month }} />
+                        </Switch>
+                    </Router>
+            </authContext.Provider>
         );
     } else {
         return <LoginScreen onSignIn={setUser} />;
