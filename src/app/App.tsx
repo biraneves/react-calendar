@@ -6,7 +6,7 @@ import {
     Redirect,
 } from 'react-router-dom';
 import { getToday } from './dateFunctions';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getUserEndpoint, IUser } from './backend';
 import { LoginScreen } from './LoginScreen';
 import { authContext } from './authContext';
