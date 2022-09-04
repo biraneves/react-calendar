@@ -1,5 +1,5 @@
 import { Box, Button } from '@material-ui/core';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import {
     getCalendarsEndpoint,
@@ -82,12 +82,14 @@ export function CalendarScreen() {
     const [editingEvent, setEditingEvent] = useState<IEditingEvent | null>(
         null,
     );
-    const weeks = generateCalendar(
-        month + '-01',
-        events,
-        calendars,
-        calendarsSelected,
-    );
+    const weeks = useMemo(() => {
+        return generateCalendar(
+            month + '-01',
+            events,
+            calendars,
+            calendarsSelected,
+        );
+    }, [month, events, calendars, calendarsSelected]);
     const firstDate: string = weeks[0][0].date;
     const lastDate: string = weeks[weeks.length - 1][6].date;
 
